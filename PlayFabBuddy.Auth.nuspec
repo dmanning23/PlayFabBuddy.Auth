@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+	<metadata>
+		<id>PlayFabBuddy.Auth</id>
+		<version>2.0.0</version>
+		<title>PlayFabBuddy.Auth</title>
+		<authors>dmanning23</authors>
+		<owners>dmanning23</owners>
+		<projectUrl>https://github.com/dmanning23/PlayFabBuddy.Auth</projectUrl>
+		<licenseUrl>https://github.com/dmanning23/PlayFabBuddy.Auth/blob/master/LICENSE.txt</licenseUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>Authentication wrapper around the PlayFab Xamarin client SDK</description>
+		<releaseNotes />
+		<copyright>Copyright 2016</copyright>
+		<tags>android, ios, windows universal, monogame, xamarin</tags>
+		<dependencies>
+
+			<!--Xamarin.Android-->
+			<group targetFramework="MonoAndroid10">
+				<dependency id="PlayFabBuddy.Core" version="2.0"/>
+				<dependency id="SimpleStorage" version="1.4"/>
+				<dependency id="Xam.Plugin.DeviceInfo" version="4.1"/>
+			</group>
+
+			<!--Xamarin.iOS Unified-->
+			<group targetFramework="Xamarin.iOS10">
+				<dependency id="PlayFabBuddy.Core" version="2.0"/>
+				<dependency id="SimpleStorage" version="1.4"/>
+				<dependency id="Xam.Plugin.DeviceInfo" version="4.1"/>
+			</group>
+
+
+			<group targetFramework="net451">
+				<dependency id="PlayFabBuddy.Core" version="2.0"/>
+				<dependency id="SimpleStorage" version="1.4"/>
+				<dependency id="Xam.Plugin.DeviceInfo" version="4.1"/>
+			</group>
+
+		</dependencies>
+	</metadata>
+	<files>
+
+		<!--Xamarin.Android-->
+		<file src="PlayFabBuddy.Auth.Android\bin\Release\PlayFabBuddy.Auth.Android.pdb" target="lib\MonoAndroid10\PlayFabBuddy.Auth.Android.pdb" />
+		<file src="PlayFabBuddy.Auth.Android\bin\Release\PlayFabBuddy.Auth.Android.dll" target="lib\MonoAndroid10\PlayFabBuddy.Auth.Android.dll" />
+
+		<!--Xamarin.iOS Unified-->
+		<file src="PlayFabBuddy.Auth.iOS\bin\Release\PlayFabBuddy.Auth.iOS.pdb" target="lib\Xamarin.iOS10\PlayFabBuddy.Auth.iOS.pdb" />
+		<file src="PlayFabBuddy.Auth.iOS\bin\Release\PlayFabBuddy.Auth.iOS.dll" target="lib\Xamarin.iOS10\PlayFabBuddy.Auth.iOS.dll" />
+		
+		<!--WindowsDX-->
+		<file src="PlayFabBuddy.Auth.WindowsDX\bin\Release\PlayFabBuddy.Auth.WindowsDX.pdb" target="lib\net451\PlayFabBuddy.Auth.WindowsDX.pdb" />
+		<file src="PlayFabBuddy.Auth.WindowsDX\bin\Release\PlayFabBuddy.Auth.WindowsDX.dll" target="lib\net451\PlayFabBuddy.Auth.WindowsDX.dll" />
+
+	</files>
+</package>

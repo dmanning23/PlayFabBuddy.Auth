@@ -9,6 +9,7 @@
     <Import_RootNamespace>PlayFabBuddy.Auth.SharedProject</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)IPlayFabAuthService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PlayFabAuthService.cs" />
   </ItemGroup>
 </Project>

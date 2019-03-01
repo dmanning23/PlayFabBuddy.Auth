@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="PlayFabBuddy.Core">
-      <Version>2.0.0</Version>
+      <Version>2.0.2</Version>
     </PackageReference>
     <PackageReference Include="SimpleStorage">
       <Version>1.4.19</Version>
