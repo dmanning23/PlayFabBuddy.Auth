@@ -1,13 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using PerpetualEngine.Storage;
 using PlayFab;
 using PlayFab.ClientModels;
-using LoginResult = PlayFab.ClientModels.LoginResult;
-using System;
-using PerpetualEngine.Storage;
-using System.Threading.Tasks;
 using Plugin.DeviceInfo;
 using Plugin.DeviceInfo.Abstractions;
+using System;
+using System.Threading.Tasks;
+using LoginResult = PlayFab.ClientModels.LoginResult;
 
 #if FACEBOOK
 using Facebook.Unity;
@@ -219,10 +217,6 @@ namespace PlayFabBuddyLib.Auth
 					InfoRequestParameters = this.InfoRequestParams
 				});
 
-				//Store identity and session
-				PlayFabId = customIdResult.Result.PlayFabId;
-				SessionTicket = customIdResult.Result.SessionTicket;
-
 				LoginResult(customIdResult);
 
 				return;
@@ -243,10 +237,6 @@ namespace PlayFabBuddyLib.Auth
 					Password = this.Password,
 					InfoRequestParameters = this.InfoRequestParams
 				});
-
-				//Store identity and session
-				PlayFabId = emailResult.Result.PlayFabId;
-				SessionTicket = emailResult.Result.SessionTicket;
 
 				//Note: At this point, they already have an account with PlayFab using a Username (email) & Password
 				//If RememberMe is checked, then generate a new Guid for Login with CustomId.
@@ -276,6 +266,10 @@ namespace PlayFabBuddyLib.Auth
 			}
 			else
 			{
+				//Store identity and session
+				PlayFabId = result.Result.PlayFabId;
+				SessionTicket = result.Result.SessionTicket;
+
 				//report login result back to subscriber
 				OnLoginSuccess?.Invoke(result.Result);
 			}
@@ -474,10 +468,6 @@ namespace PlayFabBuddyLib.Auth
 					break;
 			}
 
-			//Store identity and session
-			PlayFabId = result.Result.PlayFabId;
-			SessionTicket = result.Result.SessionTicket;
-
 			if (null != result.Error)
 			{
 				//report errro back to the subscriber
@@ -493,6 +483,10 @@ namespace PlayFabBuddyLib.Auth
 			}
 			else
 			{
+				//Store identity and session
+				PlayFabId = result.Result.PlayFabId;
+				SessionTicket = result.Result.SessionTicket;
+
 				//check if we want to get this callback directly or send to event subscribers.
 				if (callback == null)
 				{
@@ -510,7 +504,7 @@ namespace PlayFabBuddyLib.Auth
 		public async Task UnlinkSilentAuth()
 		{
 			var platform = CrossDeviceInfo.Current.Platform;
-			await SilentlyAuthenticate(platform, async(result) =>
+			await SilentlyAuthenticate(platform, async (result) =>
 			{
 				switch (platform)
 				{
@@ -542,7 +536,7 @@ namespace PlayFabBuddyLib.Auth
 				}
 			});
 		}
-	}
 
-	#endregion //Methods
+		#endregion //Methods
+	}
 }
