@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using PlayFab;
 using PlayFab.ClientModels;
 
 namespace PlayFabBuddyLib.Auth
@@ -6,6 +7,7 @@ namespace PlayFabBuddyLib.Auth
 	public interface IPlayFabAuthService
 	{
 		event PlayFabAuthService.DisplayAuthenticationEvent OnDisplayAuthentication;
+		event PlayFabAuthService.LoggingInEvent OnLoggingIn;
 		event PlayFabAuthService.LoginSuccessEvent OnLoginSuccess;
 		event PlayFabAuthService.PlayFabErrorEvent OnPlayFabError;
 

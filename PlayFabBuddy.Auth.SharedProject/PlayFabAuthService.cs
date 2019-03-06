@@ -34,12 +34,16 @@ namespace PlayFabBuddyLib.Auth
 		#region Events
 
 		public delegate void DisplayAuthenticationEvent();
-		public event DisplayAuthenticationEvent OnDisplayAuthentication;
-
+		public delegate void LoggingInEvent();
 		public delegate void LoginSuccessEvent(LoginResult success);
-		public event LoginSuccessEvent OnLoginSuccess;
-
 		public delegate void PlayFabErrorEvent(PlayFabError error);
+
+		public event DisplayAuthenticationEvent OnDisplayAuthentication;
+		
+		public event LoggingInEvent OnLoggingIn;
+		
+		public event LoginSuccessEvent OnLoginSuccess;
+		
 		public event PlayFabErrorEvent OnPlayFabError;
 
 		#endregion //Events
@@ -59,7 +63,7 @@ namespace PlayFabBuddyLib.Auth
 		/// <summary>
 		/// this is a force link flag for custom ids for demoing
 		/// </summary>
-		public bool ForceLink { get; set; } = false;
+		public bool ForceLink { get; set; } = true;
 
 		/// <summary>
 		/// Accessbility for PlayFab ID
@@ -90,8 +94,15 @@ namespace PlayFabBuddyLib.Auth
 			}
 			set
 			{
-				var storage = SimpleStorage.EditGroup("PlayFabBuddy.Auth");
-				storage.Put(_LoginRememberKey, value);
+				if (!value)
+				{
+					ClearRememberMe();
+				}
+				else
+				{
+					var storage = SimpleStorage.EditGroup("PlayFabBuddy.Auth");
+					storage.Put(_LoginRememberKey, value);
+				}
 			}
 		}
 
@@ -146,6 +157,7 @@ namespace PlayFabBuddyLib.Auth
 		{
 			var storage = SimpleStorage.EditGroup("PlayFabBuddy.Auth");
 			storage.Delete(_LoginRememberKey);
+			storage.Delete(_PlayFabAuthTypeKey);
 			storage.Delete(_PlayFabRememberMeIdKey);
 		}
 
@@ -168,32 +180,47 @@ namespace PlayFabBuddyLib.Auth
 			{
 				case AuthType.Silent:
 					{
-						await SilentlyAuthenticate(CrossDeviceInfo.Current.Platform);
+						OnLoggingIn?.Invoke();
+						var platform = CrossDeviceInfo.Current.Platform;
+						await SilentlyAuthenticate(platform);
 					}
 					break;
 				case AuthType.EmailAndPassword:
 					{
+						OnLoggingIn?.Invoke();
 						await AuthenticateEmailPassword();
 					}
 					break;
 				case AuthType.RegisterPlayFabAccount:
 					{
+						OnLoggingIn?.Invoke();
 						await AddAccountAndPassword();
 					}
 					break;
 				case AuthType.Facebook:
 					{
+						OnLoggingIn?.Invoke();
 						await AuthenticateFacebook();
 					}
 					break;
 				case AuthType.Google:
 					{
+						OnLoggingIn?.Invoke();
 						await AuthenticateGooglePlayGames();
 					}
 					break;
 				default:
 					{
-						OnDisplayAuthentication?.Invoke();
+						if (RememberMe)
+						{
+							OnLoggingIn?.Invoke();
+							AuthType = AuthType.EmailAndPassword;
+							await AuthenticateEmailPassword();
+						}
+						else
+						{
+							OnDisplayAuthentication?.Invoke();
+						}
 					}
 					break;
 			}
