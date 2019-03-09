@@ -7,13 +7,13 @@ https://www.youtube.com/watch?v=mqPiIlpQFBc
 
 For an example of how to use this package, check out the https://github.com/dmanning23/PlayFabAuthExample project.
 
-##How to use:
+## How to use:
 
-Step 1: 
+### Step 1: 
 Install the nuget package
 https://www.nuget.org/packages/PlayFabBuddy.Auth/
 
-Step 2:
+### Step 2:
 Add the auth wrapper to your IoC container:
 ```
 var client = new PlayFabClient("YOUR PLAYFAB APP ID!!!");
@@ -22,7 +22,7 @@ var auth = new PlayFabAuthService(client);
 Services.AddService<IPlayFabAuthService>(auth);
 ```
 
-Step 3:
+### Step 3:
 Sign up for all the events that the auth wrapper uses to communicate:
 ```
 //The auth wrapper wants to pop up some kind of login screen (that you have created in whatever gui library you are using)
@@ -38,7 +38,7 @@ auth.OnLoginSuccess += Auth_OnLoginSuccess;
 auth.OnPlayFabError += Auth_OnPlayFabError;
 ```
 
-Step 4:
+### Step 4:
 Try to authenticate
 ```
 auth.Authenticate();
