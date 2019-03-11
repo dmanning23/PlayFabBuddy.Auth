@@ -5,11 +5,8 @@ using Plugin.DeviceInfo;
 using Plugin.DeviceInfo.Abstractions;
 using System;
 using System.Threading.Tasks;
+using FacebookLoginLib;
 using LoginResult = PlayFab.ClientModels.LoginResult;
-
-#if FACEBOOK
-using Facebook.Unity;
-#endif
 
 namespace PlayFabBuddyLib.Auth
 {
@@ -39,25 +36,29 @@ namespace PlayFabBuddyLib.Auth
 		public delegate void PlayFabErrorEvent(PlayFabError error);
 
 		public event DisplayAuthenticationEvent OnDisplayAuthentication;
-		
+
 		public event LoggingInEvent OnLoggingIn;
-		
+
 		public event LoginSuccessEvent OnLoginSuccess;
-		
+
 		public event PlayFabErrorEvent OnPlayFabError;
 
 		#endregion //Events
 
 		#region Properties
 
+		/// <summary>
+		/// The PlayFab client object that will do all the comunicating with PlayFab
+		/// </summary>
 		public IPlayFabClient PlayFabClient { get; set; }
 
-		//These are fields that we set when we are using the service.
+		public IFacebookService Facebook { get; set; }
 
 		public string Email { get; set; }
 		public string Username { get; set; }
 		public string Password { get; set; }
 		public string AuthTicket { get; set; }
+
 		public GetPlayerCombinedInfoRequestParams InfoRequestParams { get; set; }
 
 		/// <summary>
@@ -148,9 +149,10 @@ namespace PlayFabBuddyLib.Auth
 
 		#region Methods
 
-		public PlayFabAuthService(IPlayFabClient playFabClient)
+		public PlayFabAuthService(IPlayFabClient playFabClient, IFacebookService facebook = null)
 		{
 			PlayFabClient = playFabClient;
+			Facebook = facebook;
 		}
 
 		public void ClearRememberMe()
@@ -368,49 +370,50 @@ namespace PlayFabBuddyLib.Auth
 			});
 		}
 
-		protected virtual Task AuthenticateFacebook()
+		protected virtual async Task AuthenticateFacebook()
 		{
-#if FACEBOOK
-        if (FB.IsInitialized && FB.IsLoggedIn && !string.IsNullOrEmpty(AuthTicket))
-        {
-            PlayFabClient.LoginWithFacebook(new LoginWithFacebookRequest()
-            {
-                TitleId = PlayFabSettings.TitleId,
-                AccessToken = AuthTicket,
-                CreateAccount = true,
-                InfoRequestParameters = InfoRequestParams
-            }, (result) =>
-            {
-                //Store Identity and session
-                _playFabId = result.PlayFabId;
-                _sessionTicket = result.SessionTicket;
+			//If there is no Facebook client, we can't do this
+			if (null == Facebook)
+			{
+				throw new Exception("No FacebookClient was detected.");
+			}
 
-                //check if we want to get this callback directly or send to event subscribers.
-                if (OnLoginSuccess != null)
-                {
-                    //report login result back to the subscriber
-                    OnLoginSuccess.Invoke(result);
-                }
-            }, (error) =>
-            {
+			//Check if the user needs to log into Facebook
+			if (!Facebook.LoggedIn || string.IsNullOrEmpty(AuthTicket))
+			{
+				//sign up for the logged in event
+				Facebook.OnLoginSuccess -= OnFacebookLoggedIn;
+				Facebook.OnLoginSuccess += OnFacebookLoggedIn;
 
-                //report errro back to the subscriber
-                if (OnPlayFabError != null)
-                {
-                    OnPlayFabError.Invoke(error);
-                }
-            });
-        }
-        else
-        {
-            if (OnDisplayAuthentication != null)
-            {
-                OnDisplayAuthentication.Invoke();
-            }
-        }
-#else
-			return Task.CompletedTask;
-#endif
+				//try to log in
+				Facebook.Login();
+			}
+			else
+			{
+				//just run that event
+				await AuthenticateFacebookUser(Facebook.User);
+			}
+		}
+
+		private void OnFacebookLoggedIn(FacebookUser loggedInUser)
+		{
+			Task.Run(async () =>
+			{
+				await AuthenticateFacebookUser(loggedInUser);
+			});
+		}
+
+		private async Task AuthenticateFacebookUser(FacebookUser loggedInUser)
+		{
+			var result = await PlayFabClient.LoginWithFacebookAsync(new LoginWithFacebookRequest()
+			{
+				TitleId = PlayFabSettings.TitleId,
+				AccessToken = AuthTicket,
+				CreateAccount = true,
+				InfoRequestParameters = InfoRequestParams
+			});
+
+			LoginResult(result);
 		}
 
 		protected virtual Task AuthenticateGooglePlayGames()
@@ -537,8 +540,8 @@ namespace PlayFabBuddyLib.Auth
 				{
 					case Platform.Android:
 						{
-							//Fire and forget, unlink this android device.
-							await PlayFabClient.UnlinkAndroidDeviceIDAsync(new UnlinkAndroidDeviceIDRequest()
+					//Fire and forget, unlink this android device.
+					await PlayFabClient.UnlinkAndroidDeviceIDAsync(new UnlinkAndroidDeviceIDRequest()
 							{
 								AndroidDeviceId = CrossDeviceInfo.Current.Id,
 							});
