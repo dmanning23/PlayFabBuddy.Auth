@@ -201,7 +201,6 @@ namespace PlayFabBuddyLib.Auth
 					break;
 				case AuthType.Facebook:
 					{
-						OnLoggingIn?.Invoke();
 						await AuthenticateFacebook();
 					}
 					break;
@@ -375,7 +374,10 @@ namespace PlayFabBuddyLib.Auth
 			//If there is no Facebook client, we can't do this
 			if (null == Facebook)
 			{
-				throw new Exception("No FacebookClient was detected.");
+				OnPlayFabError?.Invoke(new PlayFabError()
+				{
+					ErrorMessage = "No FacebookClient was detected",
+				});
 			}
 
 			//Check if the user needs to log into Facebook
@@ -405,6 +407,11 @@ namespace PlayFabBuddyLib.Auth
 
 		private async Task AuthenticateFacebookUser(FacebookUser loggedInUser)
 		{
+			OnLoggingIn?.Invoke();
+
+			//grab the auth ticket from that user
+			AuthTicket = loggedInUser.Token;
+
 			var result = await PlayFabClient.LoginWithFacebookAsync(new LoginWithFacebookRequest()
 			{
 				TitleId = PlayFabSettings.TitleId,

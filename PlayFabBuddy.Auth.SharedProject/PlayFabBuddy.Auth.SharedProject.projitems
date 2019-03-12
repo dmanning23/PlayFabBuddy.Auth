@@ -10,6 +10,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)IPlayFabAuthService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IPlayFabDisplayNameService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PlayFabAuthService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PlayFabDisplayNameService.cs" />
   </ItemGroup>
 </Project>
