@@ -23,6 +23,8 @@ namespace PlayFabBuddyLib.Auth
 		string PlayFabId { get; }
 		string SessionTicket { get; }
 
+		bool IsLoggedIn { get; }
+
 		bool RememberMe { get; set; }
 		AuthType AuthType { get; set; }
 
