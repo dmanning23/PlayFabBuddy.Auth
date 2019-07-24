@@ -50,7 +50,7 @@
       <HintPath>..\packages\SimpleStorage.1.4.19\lib\net45\PerpetualEngine.SimpleStorage.Desktop.dll</HintPath>
     </Reference>
     <Reference Include="PlayFabBuddy.Core.WindowsDX, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PlayFabBuddy.Core.2.0.10\lib\net451\PlayFabBuddy.Core.WindowsDX.dll</HintPath>
+      <HintPath>..\packages\PlayFabBuddy.Core.2.0.11\lib\net451\PlayFabBuddy.Core.WindowsDX.dll</HintPath>
     </Reference>
     <Reference Include="Plugin.DeviceInfo, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xam.Plugin.DeviceInfo.4.1.1\lib\net45\Plugin.DeviceInfo.dll</HintPath>
