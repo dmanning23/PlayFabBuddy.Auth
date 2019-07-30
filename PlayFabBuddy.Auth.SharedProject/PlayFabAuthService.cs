@@ -186,30 +186,30 @@ namespace PlayFabBuddyLib.Auth
 					{
 						OnLoggingIn?.Invoke();
 						var platform = CrossDeviceInfo.Current.Platform;
-						await SilentlyAuthenticate(platform);
+						await SilentlyAuthenticate(platform).ConfigureAwait(false);
 					}
 					break;
 				case AuthType.EmailAndPassword:
 					{
 						OnLoggingIn?.Invoke();
-						await AuthenticateEmailPassword();
+						await AuthenticateEmailPassword().ConfigureAwait(false);
 					}
 					break;
 				case AuthType.RegisterPlayFabAccount:
 					{
 						OnLoggingIn?.Invoke();
-						await AddAccountAndPassword();
+						await AddAccountAndPassword().ConfigureAwait(false);
 					}
 					break;
 				case AuthType.Facebook:
 					{
-						await AuthenticateFacebook();
+						await AuthenticateFacebook().ConfigureAwait(false);
 					}
 					break;
 				case AuthType.Google:
 					{
 						OnLoggingIn?.Invoke();
-						await AuthenticateGooglePlayGames();
+						await AuthenticateGooglePlayGames().ConfigureAwait(false);
 					}
 					break;
 				default:
@@ -218,7 +218,7 @@ namespace PlayFabBuddyLib.Auth
 						{
 							OnLoggingIn?.Invoke();
 							AuthType = AuthType.EmailAndPassword;
-							await AuthenticateEmailPassword();
+							await AuthenticateEmailPassword().ConfigureAwait(false);
 						}
 						else
 						{
@@ -245,7 +245,7 @@ namespace PlayFabBuddyLib.Auth
 					CustomId = RememberMeId,
 					CreateAccount = true,
 					InfoRequestParameters = this.InfoRequestParams
-				});
+				}).ConfigureAwait(false);
 
 				LoginResult(customIdResult);
 
@@ -266,7 +266,7 @@ namespace PlayFabBuddyLib.Auth
 					Email = this.Email,
 					Password = this.Password,
 					InfoRequestParameters = this.InfoRequestParams
-				});
+				}).ConfigureAwait(false);
 
 				//Note: At this point, they already have an account with PlayFab using a Username (email) & Password
 				//If RememberMe is checked, then generate a new Guid for Login with CustomId.
@@ -280,7 +280,7 @@ namespace PlayFabBuddyLib.Auth
 					{
 						CustomId = RememberMeId,
 						ForceLink = ForceLink
-					});
+					}).ConfigureAwait(false);
 				}
 
 				LoginResult(emailResult);
@@ -335,7 +335,7 @@ namespace PlayFabBuddyLib.Auth
 					Username = !string.IsNullOrEmpty(this.Username) ? Username : result.PlayFabId, //Because it is required & Unique and not supplied by User.
 					Email = this.Email,
 					Password = this.Password,
-				});
+				}).ConfigureAwait(false);
 
 				if (null != addUsernameResult.Error)
 				{
@@ -359,7 +359,7 @@ namespace PlayFabBuddyLib.Auth
 						{
 							CustomId = RememberMeId,
 							ForceLink = ForceLink
-						});
+						}).ConfigureAwait(false);
 					}
 
 					//Override the auth type to ensure next login is using this auth type.
@@ -368,7 +368,7 @@ namespace PlayFabBuddyLib.Auth
 					//Report login result back to subscriber.
 					OnLoginSuccess?.Invoke(result);
 				}
-			});
+			}).ConfigureAwait(false);
 		}
 
 		protected virtual async Task AuthenticateFacebook()
@@ -395,16 +395,13 @@ namespace PlayFabBuddyLib.Auth
 			else
 			{
 				//just run that event
-				await AuthenticateFacebookUser(Facebook.User);
+				await AuthenticateFacebookUser(Facebook.User).ConfigureAwait(false);
 			}
 		}
 
-		private void OnFacebookLoggedIn(FacebookUser loggedInUser)
+		private async void OnFacebookLoggedIn(FacebookUser loggedInUser)
 		{
-			Task.Run(async () =>
-			{
-				await AuthenticateFacebookUser(loggedInUser);
-			});
+			await AuthenticateFacebookUser(loggedInUser).ConfigureAwait(false);
 		}
 
 		private async Task AuthenticateFacebookUser(FacebookUser loggedInUser)
@@ -420,7 +417,7 @@ namespace PlayFabBuddyLib.Auth
 				AccessToken = AuthTicket,
 				CreateAccount = true,
 				InfoRequestParameters = InfoRequestParams
-			});
+			}).ConfigureAwait(false);
 
 			LoginResult(result);
 		}
@@ -478,7 +475,7 @@ namespace PlayFabBuddyLib.Auth
 							CreateAccount = true,
 							InfoRequestParameters = this.InfoRequestParams
 
-						});
+						}).ConfigureAwait(false);
 					}
 					break;
 				case Platform.iOS:
@@ -491,7 +488,7 @@ namespace PlayFabBuddyLib.Auth
 							DeviceId = CrossDeviceInfo.Current.Id,
 							CreateAccount = true,
 							InfoRequestParameters = InfoRequestParams
-						});
+						}).ConfigureAwait(false);
 					}
 					break;
 				default:
@@ -500,9 +497,9 @@ namespace PlayFabBuddyLib.Auth
 						{
 							TitleId = PlayFabSettings.staticSettings.TitleId,
 							CustomId = CrossDeviceInfo.Current.Id,
-							CreateAccount = false,
+							CreateAccount = true,
 							InfoRequestParameters = InfoRequestParams
-						});
+						}).ConfigureAwait(false);
 					}
 					break;
 			}
@@ -553,7 +550,7 @@ namespace PlayFabBuddyLib.Auth
 					await PlayFabClient.UnlinkAndroidDeviceIDAsync(new UnlinkAndroidDeviceIDRequest()
 							{
 								AndroidDeviceId = CrossDeviceInfo.Current.Id,
-							});
+							}).ConfigureAwait(false);
 						}
 						break;
 					case Platform.iOS:
@@ -561,7 +558,7 @@ namespace PlayFabBuddyLib.Auth
 							await PlayFabClient.UnlinkIOSDeviceIDAsync(new UnlinkIOSDeviceIDRequest()
 							{
 								DeviceId = CrossDeviceInfo.Current.Id,
-							});
+							}).ConfigureAwait(false);
 						}
 						break;
 					default:
@@ -569,11 +566,11 @@ namespace PlayFabBuddyLib.Auth
 							await PlayFabClient.UnlinkCustomIDAsync(new UnlinkCustomIDRequest()
 							{
 								CustomId = CrossDeviceInfo.Current.Id,
-							});
+							}).ConfigureAwait(false);
 						}
 						break;
 				}
-			});
+			}).ConfigureAwait(false);
 		}
 
 		#endregion //Methods
