@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using FacebookLoginLib;
 using LoginResult = PlayFab.ClientModels.LoginResult;
+using PlayFab.Internal;
 
 namespace PlayFabBuddyLib.Auth
 {
@@ -99,7 +100,7 @@ namespace PlayFabBuddyLib.Auth
 			{
 				if (!value)
 				{
-					ClearRememberMe();
+					Logout();
 				}
 				else
 				{
@@ -155,6 +156,13 @@ namespace PlayFabBuddyLib.Auth
 		{
 			PlayFabClient = playFabClient;
 			Facebook = facebook;
+		}
+
+		public void Logout()
+		{
+			ClearRememberMe();
+			PlayFabId = string.Empty;
+			SessionTicket = string.Empty;
 		}
 
 		public void ClearRememberMe()
@@ -292,6 +300,7 @@ namespace PlayFabBuddyLib.Auth
 			if (null != result.Error)
 			{
 				//report error back to subscriber
+				Logout();
 				OnPlayFabError?.Invoke(result.Error);
 			}
 			else
@@ -302,6 +311,23 @@ namespace PlayFabBuddyLib.Auth
 
 				//report login result back to subscriber
 				OnLoginSuccess?.Invoke(result.Result);
+			}
+		}
+
+		private void LoginResult<T>(PlayFabResult<T> result) where T : PlayFabResultCommon
+		{
+			if (null != result.Error)
+			{
+				//report error back to subscriber
+				Logout();
+				OnPlayFabError?.Invoke(result.Error);
+			}
+			else
+			{
+				//report login result back to subscriber
+				OnLoginSuccess?.Invoke(new LoginResult
+				{
+				});
 			}
 		}
 
@@ -318,6 +344,7 @@ namespace PlayFabBuddyLib.Auth
 				if (result == null)
 				{
 					//something went wrong with Silent Authentication, Check the debug console.
+					Logout();
 					OnPlayFabError?.Invoke(new PlayFabError()
 					{
 						Error = PlayFabErrorCode.UnknownError,
@@ -340,6 +367,7 @@ namespace PlayFabBuddyLib.Auth
 				if (null != addUsernameResult.Error)
 				{
 					//report error back to subscriber
+					Logout();
 					OnPlayFabError?.Invoke(addUsernameResult.Error);
 				}
 				else
@@ -376,6 +404,7 @@ namespace PlayFabBuddyLib.Auth
 			//If there is no Facebook client, we can't do this
 			if (null == Facebook)
 			{
+				Logout();
 				OnPlayFabError?.Invoke(new PlayFabError()
 				{
 					ErrorMessage = "No FacebookClient was detected",
@@ -388,6 +417,8 @@ namespace PlayFabBuddyLib.Auth
 				//sign up for the logged in event
 				Facebook.OnLoginSuccess -= OnFacebookLoggedIn;
 				Facebook.OnLoginSuccess += OnFacebookLoggedIn;
+				Facebook.OnLoginError -= Facebook_OnLoginError;
+				Facebook.OnLoginError += Facebook_OnLoginError;
 
 				//try to log in
 				Facebook.Login();
@@ -397,6 +428,51 @@ namespace PlayFabBuddyLib.Auth
 				//just run that event
 				await AuthenticateFacebookUser(Facebook.User).ConfigureAwait(false);
 			}
+		}
+
+		public async Task LinkFacebook()
+		{
+			//If there is no Facebook client, we can't do this
+			if (null == Facebook)
+			{
+				Logout();
+				OnPlayFabError?.Invoke(new PlayFabError()
+				{
+					ErrorMessage = "No FacebookClient was detected",
+				});
+			}
+
+			//Check if the user needs to log into Facebook
+			if (!Facebook.LoggedIn || string.IsNullOrEmpty(AuthTicket))
+			{
+				//sign up for the logged in event
+				Facebook.OnLoginSuccess -= OnFacebookLoggedIn;
+				Facebook.OnLoginSuccess += OnFacebookLoggedIn;
+				Facebook.OnLoginError -= Facebook_OnLoginError;
+				Facebook.OnLoginError += Facebook_OnLoginError;
+
+				//try to log in
+				Facebook.Login();
+			}
+			else
+			{
+				OnLoggingIn?.Invoke();
+
+				//grab the auth ticket from that user
+				AuthTicket = Facebook.User.Token;
+
+				var result = await PlayFabClient.LinkFacebookAccountAsync(new LinkFacebookAccountRequest()
+				{
+					AccessToken = AuthTicket,
+				}).ConfigureAwait(false);
+
+				LoginResult(result);
+			}
+		}
+
+		private void Facebook_OnLoginError(Exception ex)
+		{
+			Logout();
 		}
 
 		private async void OnFacebookLoggedIn(FacebookUser loggedInUser)
@@ -449,6 +525,7 @@ namespace PlayFabBuddyLib.Auth
             //report errro back to the subscriber
             if (OnPlayFabError != null)
             {
+				Logout();
                 OnPlayFabError.Invoke(error);
             }
         });
@@ -509,6 +586,7 @@ namespace PlayFabBuddyLib.Auth
 				//report errro back to the subscriber
 				if (callback == null)
 				{
+					Logout();
 					OnPlayFabError?.Invoke(result.Error);
 				}
 				else
@@ -546,8 +624,8 @@ namespace PlayFabBuddyLib.Auth
 				{
 					case Platform.Android:
 						{
-					//Fire and forget, unlink this android device.
-					await PlayFabClient.UnlinkAndroidDeviceIDAsync(new UnlinkAndroidDeviceIDRequest()
+							//Fire and forget, unlink this android device.
+							await PlayFabClient.UnlinkAndroidDeviceIDAsync(new UnlinkAndroidDeviceIDRequest()
 							{
 								AndroidDeviceId = CrossDeviceInfo.Current.Id,
 							}).ConfigureAwait(false);

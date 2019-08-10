@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FacebookLoginBuddy.WindowsDX, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\FBLoginBuddy.2.0.2\lib\net451\FacebookLoginBuddy.WindowsDX.dll</HintPath>
+      <HintPath>..\packages\FBLoginBuddy.2.0.3\lib\net451\FacebookLoginBuddy.WindowsDX.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -41,7 +41,7 @@
       <HintPath>..\packages\SimpleStorage.1.4.19\lib\net45\PerpetualEngine.SimpleStorage.Desktop.dll</HintPath>
     </Reference>
     <Reference Include="PlayFabBuddy.Core.WindowsDX, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PlayFabBuddy.Core.2.0.14\lib\net451\PlayFabBuddy.Core.WindowsDX.dll</HintPath>
+      <HintPath>..\packages\PlayFabBuddy.Core.2.0.15\lib\net451\PlayFabBuddy.Core.WindowsDX.dll</HintPath>
     </Reference>
     <Reference Include="Plugin.DeviceInfo, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xam.Plugin.DeviceInfo.4.1.1\lib\net45\Plugin.DeviceInfo.dll</HintPath>

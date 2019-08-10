@@ -25,6 +25,8 @@ namespace PlayFabBuddyLib.Auth
 
 		bool IsLoggedIn { get; }
 
+		void Logout();
+
 		bool RememberMe { get; set; }
 		AuthType AuthType { get; set; }
 
@@ -32,5 +34,7 @@ namespace PlayFabBuddyLib.Auth
 		Task Authenticate(AuthType authType);
 		void ClearRememberMe();
 		Task UnlinkSilentAuth();
+
+		Task LinkFacebook();
 	}
 }
