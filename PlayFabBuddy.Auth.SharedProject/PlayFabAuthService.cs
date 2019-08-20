@@ -44,6 +44,8 @@ namespace PlayFabBuddyLib.Auth
 
 		public event PlayFabErrorEvent OnPlayFabError;
 
+		public event EventHandler OnLogout;
+
 		#endregion //Events
 
 		#region Properties
@@ -60,7 +62,7 @@ namespace PlayFabBuddyLib.Auth
 		public string Password { get; set; }
 		public string AuthTicket { get; set; }
 
-		public GetPlayerCombinedInfoRequestParams InfoRequestParams { get; set; }
+		protected GetPlayerCombinedInfoRequestParams InfoRequestParams { get; set; }
 
 		/// <summary>
 		/// this is a force link flag for custom ids for demoing
@@ -163,6 +165,11 @@ namespace PlayFabBuddyLib.Auth
 			ClearRememberMe();
 			PlayFabId = string.Empty;
 			SessionTicket = string.Empty;
+
+			if (null != OnLogout)
+			{
+				OnLogout(this, new EventArgs());
+			}
 		}
 
 		public void ClearRememberMe()

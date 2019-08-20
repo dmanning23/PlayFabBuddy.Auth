@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using PlayFab;
 using PlayFab.ClientModels;
 
@@ -10,13 +11,12 @@ namespace PlayFabBuddyLib.Auth
 		event PlayFabAuthService.LoggingInEvent OnLoggingIn;
 		event PlayFabAuthService.LoginSuccessEvent OnLoginSuccess;
 		event PlayFabAuthService.PlayFabErrorEvent OnPlayFabError;
+		event EventHandler OnLogout;
 
 		string Email { get; set; }
 		string Username { get; set; }
 		string Password { get; set; }
 		string AuthTicket { get; set; }
-
-		GetPlayerCombinedInfoRequestParams InfoRequestParams { get; set; }
 
 		bool ForceLink { get; set; }
 
